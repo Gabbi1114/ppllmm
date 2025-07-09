@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Adventure</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffebee;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            color: #d81b60;
+        }
+        
+        .postcard {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        h1 {
+            color: #e91e63;
+            text-shadow: 1px 1px 2px pink;
+        }
+        
+        .game-container {
+            width: 500px;
+            height: 100px;
+            background-color: #f8bbd0;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #e91e63;
+            border-radius: 10px;
+        }
+        
+        #player {
+            width: 40px;
+            height: 40px;
+            background-color: #e91e63;
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            border-radius: 50%;
+        }
+        
+        .goal {
+            width: 40px;
+            height: 40px;
+            background-color: #ffeb3b;
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            border-radius: 50%;
+            border: 2px dashed #ff9800;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .message {
+            font-size: 18px;
+            margin: 20px;
+            padding: 15px;
+            background-color: #fce4ec;
+            border-radius: 10px;
+        }
+        
+        button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: #c2185b;
+            transform: scale(1.05);
+        }
+        
+        .date-form {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8bbd0;
+            border-radius: 10px;
+        }
+        
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .date-option {
+            background-color: #fce4ec;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .date-option:hover {
+            background-color: #f8bbd0;
+            transform: scale(1.03);
+        }
+        
+        .date-option.selected {
+            background-color: #e91e63;
+            color: white;
+            box-shadow: 0 0 10px rgba(233, 30, 99, 0.5);
+        }
+        
+        input, textarea, select {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #e91e63;
+            border-radius: 5px;
+        }
+        
+        .hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            top: 0;
+            left: 0;
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            color: #e91e63;
+            animation: float 4s ease-in-out infinite;
+            opacity: 0;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(20deg);
+                opacity: 0;
+            }
+        }
+        
+        .celebration {
+            animation: celebrate 0.5s infinite alternate;
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+        
+        #noBtn {
+            transition: all 0.3s;
+        }
+        
+        #yesBtn {
+            transition: all 0.3s;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: confetti-fall 3s linear forwards;
+        }
+        
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+        
+        #controls {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="postcard">
+        <h1>❤️ Valentine's Adventure ❤️</h1>
+        
+        <div id="gameScreen">
+            <p>Help the heart reach the golden goal to win my heart!</p>
+            
+            <div class="game-container" id="gameContainer">
+                <div id="player">❤️</div>
+                <div class="goal">💛</div>
+            </div>
+            
+            <div id="controls">
+                <button id="leftBtn">Left (←)</button>
+                <button id="rightBtn">Right (→)</button>
+            </div>
+        </div>
+        
+        <div id="winMessage" class="hidden message">
+            <h2>You Won My Heart! ❤️</h2>
+            <p>You've successfully reached my heart! Would you like to go on a date with me?</p>
+            
+            <button id="yesBtn">Yes! Absolutely!</button>
+            <button id="noBtn">Maybe another time</button>
+        </div>
+        
+        <div id="datePlanning" class="hidden">
+            <div class="date-form">
+                <h2>Let's Plan Our Perfect Date!</h2>
+                
+                <div id="activityStep">
+                    <h3>Choose a Day Activity:</h3>
+                    <div class="option-grid">
+                        <div class="date-option" data-activity="museum">🎨 Museum Visit</div>
+                        <div class="date-option" data-activity="park">🌳 Picnic in the Park</div>
+                        <div class="date-option" data-activity="hiking">🥾 Scenic Hike</div>
+                        <div class="date-option" data-activity="shopping">🛍️ Shopping Spree</div>
+                    </div>
+                    <button id="nextBtn1" class="hidden">Next</button>
+                </div>
+                
+                <div id="dinnerStep" class="hidden">
+                    <h3>Choose Dinner Style:</h3>
+                    <div class="option-grid">
+                        <div class="date-option" data-dinner="fancy">🍽️ Fancy Restaurant</div>
+                        <div class="date-option" data-dinner="casual">🍔 Casual Dining</div>
+                        <div class="date-option" data-dinner="homecooked">👩‍🍳 Homecooked Meal</div>
+                        <div class="date-option" data-dinner="takeout">🍱 Takeout & Movie</div>
+                    </div>
+                    <button id="backBtn1">Back</button>
+                    <button id="nextBtn2" class="hidden">Next</button>
+                </div>
+                
+                <div id="eveningStep" class="hidden">
+                    <h3>Choose Evening Activity:</h3>
+                    <div class="option-grid">
+                        <div class="date-option" data-evening="movie">🎬 Romantic Movie</div>
+                        <div class="date-option" data-evening="stargazing">✨ Stargazing</div>
+                        <div class="date-option" data-evening="dancing">💃 Nightclub Dancing</div>
+                        <div class="date-option" data-evening="games">🎮 Board Games</div>
+                    </div>
+                    <button id="backBtn2">Back</button>
+                    <button id="nextBtn3" class="hidden">Next</button>
+                </div>
+                
+                <div id="detailsStep" class="hidden">
+                    <h3>Final Details</h3>
+                    <input type="text" id="name" placeholder="Your Name" required>
+                    <input type="email" id="email" placeholder="Your Email" required>
+                    <input type="date" id="date" required>
+                    <textarea id="message" placeholder="Special requests or sweet notes"></textarea>
+                    <button id="backBtn3">Back</button>
+                    <button id="submitBtn">Complete Our Plan!</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="celebration" class="hidden message">
+            <h2 class="celebration">🎉 Hurray! We Did It! 🎉</h2>
+            <p>Our perfect date is planned!</p>
+            <div id="dateSummary"></div>
+            <p>I can't wait to see you on <span id="dateDisplay"></span>!</p>
+            <button id="restartBtn">Play Again</button>
+        </div>
+        
+        <div class="hearts" id="hearts"></div>
+    </div>
+
+    <script>
+        // Game variables
+        const player = document.getElementById('player');
+        const gameContainer = document.getElementById('gameContainer');
+        const gameScreen = document.getElementById('gameScreen');
+        const winMessage = document.getElementById('winMessage');
+        const datePlanning = document.getElementById('datePlanning');
+        const celebration = document.getElementById('celebration');
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const heartsContainer = document.getElementById('hearts');
+        
+        let playerX = 20;
+        let gameWon = false;
+        let yesCount = 0;
+        
+        // Goal position
+        const goal = {x: 440, width: 40};
+        
+        // Date choices
+        let dateChoices = {
+            activity: null,
+            dinner: null,
+            evening: null,
+            date: null,
+            name: '',
+            email: '',
+            message: ''
+        };
+        
+        // Movement functions
+        function movePlayer(direction) {
+            if (gameWon) return;
+            
+            if (direction === 'left' && playerX > 0) {
+                playerX -= 20;
+            } else if (direction === 'right') {
+                playerX += 20;
+                
+                // Check if reached goal
+                if (playerX + 40 >= goal.x) {
+                    winGame();
+                    return;
+                }
+            }
+            
+            player.style.left = playerX + 'px';
+        }
+        
+        function winGame() {
+            gameWon = true;
+            gameScreen.classList.add('hidden');
+            winMessage.classList.remove('hidden');
+            createHearts(30);
+        }
+        
+        // Date planning steps
+        document.querySelectorAll('#activityStep .date-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('#activityStep .date-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                option.classList.add('selected');
+                dateChoices.activity = option.dataset.activity;
+                document.getElementById('nextBtn1').classList.remove('hidden');
+            });
+        });
+        
+        document.querySelectorAll('#dinnerStep .date-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('#dinnerStep .date-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                option.classList.add('selected');
+                dateChoices.dinner = option.dataset.dinner;
+                document.getElementById('nextBtn2').classList.remove('hidden');
+            });
+        });
+        
+        document.querySelectorAll('#eveningStep .date-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('#eveningStep .date-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                option.classList.add('selected');
+                dateChoices.evening = option.dataset.evening;
+                document.getElementById('nextBtn3').classList.remove('hidden');
+            });
+        });
+        
+        // Navigation buttons
+        document.getElementById('nextBtn1').addEventListener('click', () => {
+            activityStep.classList.add('hidden');
+            dinnerStep.classList.remove('hidden');
+        });
+        
+        document.getElementById('backBtn1').addEventListener('click', () => {
+            dinnerStep.classList.add('hidden');
+            activityStep.classList.remove('hidden');
+        });
+        
+        document.getElementById('nextBtn2').addEventListener('click', () => {
+            dinnerStep.classList.add('hidden');
+            eveningStep.classList.remove('hidden');
+        });
+        
+        document.getElementById('backBtn2').addEventListener('click', () => {
+            eveningStep.classList.add('hidden');
+            dinnerStep.classList.remove('hidden');
+        });
+        
+        document.getElementById('nextBtn3').addEventListener('click', () => {
+            eveningStep.classList.add('hidden');
+            detailsStep.classList.remove('hidden');
+        });
+        
+        document.getElementById('backBtn3').addEventListener('click', () => {
+            detailsStep.classList.add('hidden');
+            eveningStep.classList.remove('hidden');
+        });
+        
+        // Event listeners
+        document.getElementById('leftBtn').addEventListener('click', () => movePlayer('left'));
+        document.getElementById('rightBtn').addEventListener('click', () => movePlayer('right'));
+        
+        document.getElementById('yesBtn').addEventListener('click', () => {
+            winMessage.classList.add('hidden');
+            datePlanning.classList.remove('hidden');
+            createHearts(20);
+        });
+        
+        document.getElementById('noBtn').addEventListener('click', () => {
+            yesCount++;
+            
+            // Make the yes button bigger
+            yesBtn.style.fontSize = `${16 + yesCount * 2}px`;
+            yesBtn.style.padding = `${10 + yesCount}px ${20 + yesCount * 2}px`;
+            
+            // Make the no button smaller
+            noBtn.style.transform = `scale(${1 - yesCount * 0.05})`;
+            
+            // Playful messages
+            const messages = [
+                "Are you sure?",
+                "Think again!",
+                "I'll ask nicer!",
+                "Pretty please?",
+                "You know you want to!",
+                "I'll be sad!",
+                "Just say yes!",
+                "Puppy eyes activated!",
+                "I made cookies!",
+                "OK, I surrender! (Just kidding)"
+            ];
+            
+            noBtn.textContent = messages[Math.min(yesCount - 1, messages.length - 1)];
+            
+            // If clicked too many times, auto-accept
+            if (yesCount >= 10) {
+                yesBtn.click();
+            }
+            
+            createHearts(5);
+        });
+        
+        // Submit the date plan
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            dateChoices.name = document.getElementById('name').value;
+            dateChoices.email = document.getElementById('email').value;
+            dateChoices.message = document.getElementById('message').value;
+            dateChoices.date = document.getElementById('date').value;
+            
+            if (!dateChoices.name || !dateChoices.email || !dateChoices.date) {
+                alert('Please fill in all required fields!');
+                return;
+            }
+            
+            // Create date summary
+            const activityMap = {
+                museum: "Museum Visit",
+                park: "Picnic in the Park",
+                hiking: "Scenic Hike",
+                shopping: "Shopping Spree"
+            };
+            
+            const dinnerMap = {
+                fancy: "Fancy Restaurant Dinner",
+                casual: "Casual Dining",
+                homecooked: "Homecooked Meal",
+                takeout: "Takeout & Movie"
+            };
+            
+            const eveningMap = {
+                movie: "Romantic Movie",
+                stargazing: "Stargazing",
+                dancing: "Nightclub Dancing",
+                games: "Board Games Night"
+            };
+            
+            document.getElementById('dateSummary').innerHTML = `
+                <p><strong>Our Date Plan:</strong></p>
+                <p>🌞 Day: ${activityMap[dateChoices.activity]}</p>
+                <p>🍽️ Dinner: ${dinnerMap[dateChoices.dinner]}</p>
+                <p>🌙 Evening: ${eveningMap[dateChoices.evening]}</p>
+                ${dateChoices.message ? `<p>💌 Special Note: "${dateChoices.message}"</p>` : ''}
+            `;
+            
+            // Format the date
+            const dateObj = new Date(dateChoices.date);
+            document.getElementById('dateDisplay').textContent = dateObj.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            // Show celebration
+            datePlanning.classList.add('hidden');
+            celebration.classList.remove('hidden');
+            createConfetti(100);
+            
+            // Send the data (in a real app, you'd send to your server)
+            console.log('Date planned:', dateChoices);
+            
+            // Create a mailto link as fallback
+            const subject = "Our Valentine's Date Plan!";
+            const body = `Hi ${dateChoices.name},\n\nOur date plan:\n\nDay: ${activityMap[dateChoices.activity]}\nDinner: ${dinnerMap[dateChoices.dinner]}\nEvening: ${eveningMap[dateChoices.evening]}\n\nDate: ${document.getElementById('dateDisplay').textContent}\n\n${dateChoices.message ? `Your note: ${dateChoices.message}` : ''}`;
+            const mailtoLink = `mailto:${dateChoices.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            celebration.innerHTML += `
+                <p>If the form didn't work, you can <a href="${mailtoLink}">click here to email me this plan</a>.</p>
+            `;
+        });
+        
+        // Restart button
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            celebration.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            
+            // Reset game
+            playerX = 20;
+            gameWon = false;
+            player.style.left = playerX + 'px';
+            
+            // Reset buttons
+            yesCount = 0;
+            yesBtn.style.fontSize = '16px';
+            yesBtn.style.padding = '10px 20px';
+            noBtn.style.transform = 'scale(1)';
+            noBtn.textContent = 'Maybe another time';
+            
+            // Reset date choices
+            dateChoices = {
+                activity: null,
+                dinner: null,
+                evening: null,
+                date: null,
+                name: '',
+                email: '',
+                message: ''
+            };
+            
+            // Reset form
+            document.querySelectorAll('.date-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('date').value = '';
+            document.getElementById('message').value = '';
+            
+            // Reset steps
+            activityStep.classList.remove('hidden');
+            dinnerStep.classList.add('hidden');
+            eveningStep.classList.add('hidden');
+            detailsStep.classList.add('hidden');
+            
+            document.getElementById('nextBtn1').classList.add('hidden');
+            document.getElementById('nextBtn2').classList.add('hidden');
+            document.getElementById('nextBtn3').classList.add('hidden');
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                movePlayer('left');
+            } else if (e.key === 'ArrowRight') {
+                movePlayer('right');
+            }
+        });
+        
+        // Helper functions
+        function createHearts(count) {
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDuration = (2 + Math.random() * 3) + 's';
+                heart.style.animationDelay = Math.random() + 's';
+                heartsContainer.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 4000);
+            }
+        }
+        
+        function createConfetti(count) {
+            const colors = ['#e91e63', '#ffeb3b', '#4caf50', '#2196f3', '#9c27b0'];
+            
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = -10 + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = (5 + Math.random() * 10) + 'px';
+                confetti.style.height = (5 + Math.random() * 10) + 'px';
+                confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
+                confetti.style.animationDelay = Math.random() + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 4000);
+            }
+        }
+    </script>
+</body>
+</html>
